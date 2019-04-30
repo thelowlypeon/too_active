@@ -8,13 +8,17 @@ module TooActive
       event_class_for 'sql.active_record'
 
       def self.from_args(args)
-        data = args[4] || {}
-        new(name: data[:name], start_time: args[1], end_time: args[2], id: args[3], sql: data[:sql])
+        (_event_name, start_time, end_time, id, data) = args
+        if data && data.is_a?(Hash)
+          name = data[:name]
+          sql = data[:sql]
+        end
+        new(name: name, start_time: start_time, end_time: end_time, id: id, sql: sql)
       end
 
-      def initialize(id:, start_time:, end_time:, name:, sql:)
+      def initialize(name:, start_time:, end_time:, id:, sql:)
         @sql = sql
-        super(id: id, start_time: start_time, end_time: end_time, name: name || name_from_sql)
+        super(id: id, start_time: start_time, end_time: end_time, name: name || name_from_sql(sql))
       end
 
       def ignore?
@@ -27,7 +31,7 @@ module TooActive
         super && sql
       end
 
-      def name_from_sql
+      def name_from_sql(sql)
         match_data = match_select(sql) || match_other_sql(sql)
         if match_data && match_data[:table]
           "#{match_data[:table]} #{match_data[:verb]}"
@@ -37,11 +41,11 @@ module TooActive
       end
 
       def match_select(sql)
-        /^(?<verb>SELECT) .* FROM [\\'"]?(?<table>[\w]+)[\\'"]?/.match(sql)
+        /^(?<verb>SELECT) .* FROM [\\'"]?(?<table>[\w]+)[\\'"]?/.match(sql) if sql
       end
 
       def match_other_sql(sql)
-        /^(?<verb>\w+)\s+(FROM|INTO)?[\\'"\s]+(?<table>\w+)/.match(sql)
+        /^(?<verb>\w+)\s+(FROM|INTO)?[\\'"\s]+(?<table>\w+)/.match(sql) if sql
       end
     end
   end

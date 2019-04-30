@@ -6,10 +6,11 @@ module TooActive
     class InvalidEventData < StandardError; end
 
     def self.from_args(args)
-      new(name: args[0], start_time: args[1], end_time: args[2], id: args[3])
+      (name, start_time, end_time, id) = args
+      new(name: name, start_time: start_time, end_time: end_time, id: id)
     end
 
-    def initialize(id:, start_time:, end_time:, name:)
+    def initialize(name:, start_time:, end_time:, id:)
       @id = id
       @start_time = start_time
       @end_time = end_time

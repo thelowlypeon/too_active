@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-fdescribe TooActive::Events::SqlQuery do
+describe TooActive::Events::SqlQuery do
   let(:event_name) { 'sql.active_record' }
   let(:id) { Time.now.to_i }
   let(:start_time) { end_time - 1 }
