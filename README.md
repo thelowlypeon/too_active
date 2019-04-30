@@ -25,7 +25,7 @@ It does this by subscribing to event using [`ActiveSupport::Notifications`](http
 
 Currently, `TooActive` only supports `sql.active_record` events, which are fired when a SQL query is executed.
 
-## Usage
+## Installation
 
 Install the gem in your `Gemfile` using bundler, or by building it locally.
 
@@ -44,3 +44,14 @@ group :development, :test do
   gem 'too_active', git: 'git@github.com:thelowlypeon/too_active'
 end
 ```
+
+## Usage
+
+Pass any block into `profile`:
+
+```ruby
+events = TooActive.profile { my_potentially_expensive_block }
+puts events.count # => lots!
+```
+
+More analysis to come. For now, it just logs events.
