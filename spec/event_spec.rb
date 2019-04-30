@@ -5,16 +5,11 @@ describe TooActive::Event do
   let(:id) { Time.now.to_i }
   let(:start_time) { end_time - 1 }
   let(:end_time) { Time.now }
-  let(:data) do
-    {
-      other_stuff: 'some value'
-    }
-  end
-  let(:event) { described_class.new(name: name, id: id, start_time: start_time, end_time: end_time) }
+  let(:event) { described_class.new(name: name, start_time: start_time, end_time: end_time, id: id) }
 
   describe '.from_args' do
-    let(:args) { [name, id, start_time, end_time, data] }
-    subject { described_class.from_args(*args) }
+    let(:args) { [name, start_time, end_time, id] }
+    subject { described_class.from_args(args) }
 
     it_behaves_like 'a valid event'
   end

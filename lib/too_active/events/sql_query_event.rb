@@ -9,7 +9,7 @@ module TooActive
 
       def self.from_args(args)
         data = args[4] || {}
-        new(id: args[1], start_time: args[2], end_time: args[3], name: data[:name], sql: data[:sql])
+        new(name: data[:name], start_time: args[1], end_time: args[2], id: args[3], sql: data[:sql])
       end
 
       def initialize(id:, start_time:, end_time:, name:, sql:)

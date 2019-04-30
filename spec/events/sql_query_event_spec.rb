@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe TooActive::Events::SqlQuery do
+fdescribe TooActive::Events::SqlQuery do
   let(:event_name) { 'sql.active_record' }
   let(:id) { Time.now.to_i }
   let(:start_time) { end_time - 1 }
@@ -16,8 +16,8 @@ describe TooActive::Events::SqlQuery do
   end
 
   describe '.from_args' do
-    let(:args) { [event_name, id, start_time, end_time, data] }
-    subject { described_class.from_args(*args) }
+    let(:args) { [event_name, start_time, end_time, id, data] }
+    subject { described_class.from_args(args) }
 
     context 'when the args are as expected from active support' do
       it 'instantiates the event' do
