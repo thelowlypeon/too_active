@@ -7,7 +7,7 @@ module TooActive
 
       event_class_for 'sql.active_record'
 
-      def self.from_args(*args)
+      def self.from_args(args)
         data = args[4] || {}
         new(id: args[1], start_time: args[2], end_time: args[3], name: data[:name], sql: data[:sql])
       end

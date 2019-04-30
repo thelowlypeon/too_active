@@ -5,7 +5,7 @@ module TooActive
     class InvalidEventType < StandardError; end
     class InvalidEventData < StandardError; end
 
-    def self.from_args(*args)
+    def self.from_args(args)
       new(name: args[0], id: args[1], start_time: args[2], end_time: args[3])
     end
 
