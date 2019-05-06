@@ -4,11 +4,11 @@ module TooActive
       label 'Duration (ms)'
 
       def summary_value
-        events.map(&:duration).inject(:+)
+        (events.map(&:duration).inject(:+) * 1000).round
       end
 
       def detail_values_for(batch:)
-        batch.map(&:duration).inject(:+)
+        (batch.map(&:duration).inject(:+) * 1000).round
       end
 
       class << self
