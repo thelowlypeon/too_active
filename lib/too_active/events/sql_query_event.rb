@@ -25,6 +25,10 @@ module TooActive
         name == 'SCHEMA' || super
       end
 
+      def distinct_value
+        sql
+      end
+
       private
 
       def required_fields_present?

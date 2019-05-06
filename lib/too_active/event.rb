@@ -26,6 +26,13 @@ module TooActive
       @duration ||= end_time - start_time
     end
 
+    # by default, all events are conosidered distinct.
+    # override this to consider events duplicates, such as multiple
+    # SQL events with the same SQL query being executed
+    def distinct_value
+      id
+    end
+
     class << self
       attr_reader :for_event_type
 

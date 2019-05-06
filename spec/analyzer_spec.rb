@@ -34,4 +34,38 @@ describe TooActive::Analyzer do
       end
     end
   end
+
+  describe '#distinct_values_per_group' do
+    let(:analyzer_class) { TooActive::Analyzers::TestAnalyzer }
+    subject { analyzer.distinct_values_per_group }
+
+    context 'when there are multiple event types but all with the same distinct value' do
+      let(:events) { [TooActive::TestEvent.mock(name: 'a', id: 'a1'), TooActive::TestEvent.mock(name: 'b', id: 'b1')] }
+
+      it 'returns the correct set of groups' do
+        expect(subject).to eq({
+          'a' => { 'a1' => 1 },
+          'b' => { 'b1' => 1 },
+        })
+      end
+    end
+
+    context 'when there are multiple distinct values within the same event group' do
+      let(:events) {
+        [
+          TooActive::TestEvent.mock(name: 'a', id: 'a1'),
+          TooActive::TestEvent.mock(name: 'a', id: 'a1'),
+          TooActive::TestEvent.mock(name: 'a', id: 'a2'),
+          TooActive::TestEvent.mock(name: 'b', id: 'b1')
+        ]
+      }
+
+      it 'returns the correct set of groups' do
+        expect(subject).to eq({
+          'a' => { 'a1' => 2, 'a2' => 1 },
+          'b' => { 'b1' => 1 },
+        })
+      end
+    end
+  end
 end

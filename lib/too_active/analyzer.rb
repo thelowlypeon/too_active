@@ -51,11 +51,21 @@ module TooActive
       end
     end
 
+    # eg
+    # {
+    #   'Company Load': {
+    #     'SELECT ... WHERE id = 7' => 1,
+    #     'SELECT ... WHERE id = 9' => 30
+    #   }
+    # }
     def distinct_values_per_group
-      @distinct_values_per_group ||= events_grouped_by_name.map do |name, events|
-        events.each_with_object({}).each do |event, groups|
-          groups[event.distinct_value] ||= 0
-          groups[event.distinct_value] += 1
+      @distinct_values_per_group ||= begin
+        events_grouped_by_name.each_with_object({}) do |grouped_events, all_groups|
+          (name, events) = grouped_events
+          all_groups[name] = events.each_with_object({}).each do |event, groups|
+            groups[event.distinct_value] ||= 0
+            groups[event.distinct_value] += 1
+          end
         end
       end
     end
