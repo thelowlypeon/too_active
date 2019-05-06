@@ -5,12 +5,36 @@ unless defined?(TooActive::TestEvent)
     class TestEvent < Event
       event_class_for 'too_active.test'
 
-      def self.from_args(_args = nil)
-        new(name: 'Dummy', start_time: Time.now - 1, end_time: Time.now, id: Time.now.to_i)
+      def self.from_args(args = nil)
+        mock
       end
 
-      def self.mock
-        from_args
+      def self.mock(name: 'Dummy', start_time: Time.at(0), end_time: Time.at(1), id: Time.now.to_i)
+        new(name: name, start_time: start_time, end_time: end_time, id: id)
+      end
+    end
+  end
+end
+
+unless defined?(TooActive::Analyzers::TestAnalyzer)
+  module TooActive
+    module Analyzers
+      class TestAnalyzer < TooActive::Analyzer
+        label 'Test Analyzer'
+
+        private
+
+        def summary_value
+          'summary value'
+        end
+
+        def detail_values_for(batch:)
+          'detail'
+        end
+
+        def self.can_analyze?(event_class)
+          event_class.for_event_type == 'too_active.test'
+        end
       end
     end
   end
