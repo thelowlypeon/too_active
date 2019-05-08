@@ -9,8 +9,13 @@ unless defined?(TooActive::TestEvent)
         mock
       end
 
-      def self.mock(name: 'Dummy', start_time: Time.at(0), end_time: Time.at(1), id: Time.now.to_i)
+      def self.mock(name: 'Dummy', start_time: Time.at(0), end_time: Time.at(1), id: Time.now.to_i, distinct_value: nil)
+        @distinct_value = distinct_value
         new(name: name, start_time: start_time, end_time: end_time, id: id)
+      end
+
+      def distinct_value
+        @distinct_value || super
       end
     end
   end

@@ -31,8 +31,8 @@ module TooActive
 
       private
 
-      def required_fields_present?
-        super && sql
+      def required_fields
+        [:sql] + super
       end
 
       def name_from_sql(sql)

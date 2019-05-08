@@ -43,12 +43,13 @@ module TooActive
 
     private
 
-    def required_fields_present?
-      id && start_time && end_time && name
+    def required_fields
+      [:id, :start_time, :end_time, :name]
     end
 
     def validate!
-      raise InvalidEventData, "Missing data" unless required_fields_present?
+      missing_fields = required_fields.reject { |f| self.send(f) }
+      raise InvalidEventData, "Missing data: #{missing_fields.join(', ')}" if missing_fields.any?
     end
   end
 end
