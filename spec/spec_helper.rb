@@ -45,6 +45,24 @@ unless defined?(TooActive::Analyzers::TestAnalyzer)
   end
 end
 
+RSpec::Matchers.define(:have_raw_value) do |raw_value|
+  match do |subject|
+    expect(TooActive::Analyzer::Result.extract_raw_value(subject)).to eq raw_value
+  end
+end
+
+RSpec::Matchers.define(:eq_hash_with_raw_values) do |hash_with_raw_values|
+  match do |subject|
+    expect(TooActive::Analyzer::Result.extract_raw_value(subject)).to eq hash_with_raw_values
+  end
+end
+
+RSpec::Matchers.define(:match_hash_with_raw_values) do |hash_with_raw_values|
+  match do |subject|
+    expect(TooActive::Analyzer::Result.extract_raw_value(subject)).to match hash_with_raw_values
+  end
+end
+
 Dir[File.join(__dir__, 'shared_examples/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|

@@ -110,4 +110,39 @@ describe TooActive do
       end
     end
   end
+
+  describe 'end to end profile with common arguments, primarily for tdd' do
+    let(:events_data) do
+      [
+        { sql: 'SELECT * FROM a WHERE id = 1', name: 'Resource A Load'},
+        { sql: 'SELECT * FROM a WHERE id = 1', name: 'Resource A Load'},
+        { sql: 'SELECT * FROM a WHERE id = 2', name: 'Resource A Load'},
+        { sql: 'SELECT * FROM b WHERE id = 1', name: 'Resource B Load'},
+        { sql: 'SELECT * FROM b WHERE id = 1', name: 'Resource B Load'},
+        { sql: 'SELECT * FROM b INNER JOIN a ON a.b_id = b.id WHERE b.id = 1 AND other_condition = 1 AND some_other_condition IN (1,2,3,4)', name: 'Resource B Load'},
+      ]
+    end
+    let(:mock_events) { events_data.map { |data| ActiveSupport::Notifications.instrument('sql.active_record', data) } }
+
+    let(:block) { ->{ mock_events } }
+
+    subject { TooActive.profile(analyze: { stdout: false }) { block.call } }
+
+    it 'prints the desired output' do
+      expect(subject).to eq %Q(-----------------------------------------
+Count          : 6
+Duration (ms)  : 0
+-----------------------------------------
+Count
+ * Resource A Load:
+   - 2 (SELECT * FROM a WHERE id = 1)
+   - 1 (SELECT * FROM a WHERE id = 2)
+ * Resource B Load:
+   - 2 (SELECT * FROM b WHERE id = 1)
+   - 1 (SELECT * FROM b INNER JOIN a...ther_condition IN (1,2,3,4))
+Duration (ms)
+ * Resource A Load: 0
+ * Resource B Load: 0)
+    end
+  end
 end

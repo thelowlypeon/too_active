@@ -15,7 +15,7 @@ describe TooActive::Analyzers::Duration do
     subject { analyzer.summary }
 
     it 'counts the events' do
-      expect(subject).to eq event_duration_ms * events_count
+      expect(subject).to have_raw_value event_duration_ms * events_count
     end
   end
 
@@ -23,7 +23,7 @@ describe TooActive::Analyzers::Duration do
     subject { analyzer.details }
 
     it 'groups the events' do
-      expect(subject).to eq({ event_name => event_duration_ms * events_count })
+      expect(subject).to eq_hash_with_raw_values({ event_name => event_duration_ms * events_count })
     end
 
     context 'when there are events with different names' do
@@ -32,14 +32,14 @@ describe TooActive::Analyzers::Duration do
       let(:events) { events_a + events_b }
 
       it 'groups the events' do
-        expect(subject).to eq({ 'a' => 1000, 'b' => 1000 });
+        expect(subject).to eq_hash_with_raw_values({ 'a' => 1000, 'b' => 1000 });
       end
 
       context 'when one event takes longer than another' do
         let(:events_b) { [TooActive::TestEvent.mock(name: 'b', start_time: event_start_time, end_time: event_end_time + 1, id: "test_b_1")] }
 
         it 'orders them by count desc' do
-          expect(subject).to eq({ 'b' => 2000, 'a' => 1000 });
+          expect(subject).to eq_hash_with_raw_values({ 'b' => 2000, 'a' => 1000 });
         end
       end
 

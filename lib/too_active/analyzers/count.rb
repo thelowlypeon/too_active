@@ -8,7 +8,12 @@ module TooActive
       end
 
       def detail_values_for(batch:)
-        batch.count
+        distinct_events = {}
+        batch.each do |event|
+          distinct_events[event.distinct_value] ||= 0
+          distinct_events[event.distinct_value] += 1
+        end
+        TooActive::Analyzer::ResultSet.new(distinct_events)
       end
 
       class << self

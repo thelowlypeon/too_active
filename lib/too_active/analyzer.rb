@@ -14,6 +14,42 @@ module TooActive
   class Analyzer
     class InvalidAnalzyerForEvent < StandardError; end
 
+    class Result
+      attr_reader :raw_value
+      alias_method :sort_value, :raw_value
+
+      def initialize(raw_value)
+        @raw_value = raw_value.freeze
+      end
+
+      def to_s
+        raw_value.to_s
+      end
+
+      def self.extract_raw_value(result)
+        case result
+        when Hash
+          result.map { |k, v| [k, extract_raw_value(v)] }.to_h
+        when Array
+          result.map { |el| extract_raw_value(el) }
+        when Result
+          result.raw_value
+        else
+          result
+        end
+      end
+    end
+
+    class ResultSet < Result # a ResultSet is a hash with label => value
+      def to_s
+        raw_value.map { |k, v| "#{k} (#{v}x)" }.join(', ')
+      end
+
+      def sort_value
+        raw_value.values.inject(&:+)
+      end
+    end
+
     class << self
       attr_reader :get_label
 
@@ -45,6 +81,10 @@ module TooActive
       events << event
     end
 
+    # eg
+    # {
+    #   'Company Load': [event1, event2]
+    # }
     def events_grouped_by_name
       @events_grouped_by_name ||= events.each_with_object({}).each do |event, groups|
         (groups[event.name] ||= []) << event
@@ -70,13 +110,15 @@ module TooActive
       end
     end
 
+    # @return Result
     def summary
-      summary_value
+      result(summary_value)
     end
 
+    # @result [String: Result]
     def details
       events_grouped_by_name
-        .map { |name, batch| [name, detail_values_for(batch: batch)] }
+        .map { |name, batch| [name, result(detail_values_for(batch: batch))] }
         .sort { |a, b| sort_events(a[1], b[1]) }
         .to_h
     end
@@ -84,6 +126,10 @@ module TooActive
     private
 
     attr_reader :events
+
+    def result(raw_value)
+      raw_value.is_a?(Result) ? raw_value : Result.new(raw_value)
+    end
 
     def summary_value
       raise 'not implemented'
@@ -94,7 +140,7 @@ module TooActive
     end
 
     def sort_events(a, b)
-      b <=> a
+      b.sort_value <=> a.sort_value
     end
   end
 end
