@@ -12,7 +12,7 @@ RSpec.shared_examples 'a valid event' do
     let(:start_time) { nil }
 
     it 'raises' do
-      expect { subject }.to raise_error(TooActive::Event::InvalidEventData, 'Missing data')
+      expect { subject }.to raise_error(TooActive::Event::InvalidEventData, /Missing data/)
     end
   end
 end

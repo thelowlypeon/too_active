@@ -32,7 +32,7 @@ describe TooActive::Events::SqlQuery do
         let(:sql) { nil }
 
         it 'raises' do
-          expect { subject }.to raise_error(TooActive::Event::InvalidEventData, 'Missing data')
+          expect { subject }.to raise_error(TooActive::Event::InvalidEventData, 'Missing data: sql')
         end
       end
 
