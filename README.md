@@ -35,7 +35,7 @@ Install the gem in your `Gemfile` using bundler, or by building it locally.
 gem 'too_active', git: 'git@github.com:thelowlypeon/too_active'
 ```
 
-If you add it to your Gemfile, you'll probably want to do so only in youor test or development environments:
+If you add it to your Gemfile, you'll probably want to do so only in your test or development environments:
 
 ```ruby
 # Gemfile
