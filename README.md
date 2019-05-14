@@ -56,4 +56,4 @@ puts events.count # => lots!
 TooActive.profile { my_potentially_expensive_block } # => prints analysis
 ```
 
-More analysis to come. For now, it just logs events.
+Note: This currently only analyzes active record queries and their duration. More to come.
