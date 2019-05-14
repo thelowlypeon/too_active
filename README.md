@@ -50,8 +50,10 @@ end
 Pass any block into `profile`:
 
 ```ruby
-events = TooActive.profile { my_potentially_expensive_block }
+events = TooActive.profile(analyze: false) { my_potentially_expensive_block }
 puts events.count # => lots!
+
+TooActive.profile { my_potentially_expensive_block } # => prints analysis
 ```
 
 More analysis to come. For now, it just logs events.
