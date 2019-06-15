@@ -1,3 +1,5 @@
+require 'too_active/sql_parsing'
+
 module TooActive
   module Events
     class SqlQuery < TooActive::Event
@@ -21,7 +23,7 @@ module TooActive
       end
 
       def ignore?
-        query.is_a?(SqlParsing::UnrecognizedQuery) || super
+        name == 'SCHEMA' || query.is_a?(SqlParsing::UnrecognizedQuery) || super
       end
 
       def distinct_value
