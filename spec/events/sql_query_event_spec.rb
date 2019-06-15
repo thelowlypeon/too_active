@@ -53,17 +53,4 @@ describe TooActive::Events::SqlQuery do
       end
     end
   end
-
-  describe '#ignore?' do
-    let(:query_event) { described_class.new(id: id, start_time: start_time, end_time: end_time, name: name, data: { sql: sql }) }
-    subject { query_event.ignore? }
-
-    context 'when the sql is a SCHEMA query' do
-      let(:sql) { 'SCHEMA' }
-
-      it 'ignores' do
-        expect(subject).to be true
-      end
-    end
-  end
 end

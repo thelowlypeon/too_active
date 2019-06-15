@@ -10,6 +10,7 @@ module TooActive
 
         def query_types
           @query_types ||= {
+            schema: SchemaQuery,
             select: SelectQuery,
             count: CountQuery,
             update: UpdateQuery,
@@ -49,14 +50,14 @@ module TooActive
       end
 
       def description
-        "#{tablename} #{verb.to_s.upcase}"
+        verb.to_s.upcase
       end
 
       private
 
       def extract_parts!
         query = sql
-        self.class.extractions.reverse.each do |meth|
+        (self.class.extractions || []).reverse.each do |meth|
           query = self.send("extract_#{meth}", query)
         end
       end
@@ -74,7 +75,29 @@ module TooActive
       end
     end
 
-    class SelectQuery < AbstractQuery
+    class TableBasedQuery < AbstractQuery
+      attr_reader :tablename
+
+      def description
+        "#{tablename} #{verb.to_s.upcase}"
+      end
+    end
+
+    class SchemaQuery < AbstractQuery
+      type :schema
+    end
+
+    class UnrecognizedQuery < AbstractQuery
+      type :unknown
+      components :verb
+
+      def extract_verb(query)
+        first_word = query.split(/\s+/)[0]
+        @verb = first_word.downcase.to_sym if first_word
+      end
+    end
+
+    class SelectQuery < TableBasedQuery
       type :select
       components :selects, :tablename, :joins, :conditions, :groups, :orders, :limit
 
@@ -147,7 +170,7 @@ module TooActive
       components :selects, :tablename, :conditions, :groups
     end
 
-    class UpdateQuery < AbstractQuery
+    class UpdateQuery < TableBasedQuery
       type :update
       components :tablename, :updates, :conditions
 
@@ -165,7 +188,7 @@ module TooActive
       end
     end
 
-    class InsertQuery < AbstractQuery
+    class InsertQuery < TableBasedQuery
       type :insert
       components :tablename, :values
 
@@ -209,7 +232,7 @@ module TooActive
       end
     end
 
-    class DeleteQuery < AbstractQuery
+    class DeleteQuery < TableBasedQuery
       type :delete
       components :tablename, :conditions
 
@@ -217,16 +240,6 @@ module TooActive
         (query, from) = query.split(/ from /i)
         @tablename = from.gsub('"', '') # this includes joins TODO
         query
-      end
-    end
-
-    class UnrecognizedQuery < AbstractQuery
-      type :unknown
-      components :verb
-
-      def extract_verb(query)
-        first_word = query.split(/\s+/)[0]
-        @verb = first_word.downcase.to_sym if first_word
       end
     end
   end
