@@ -135,10 +135,10 @@ Duration (ms)  : 0
 -----------------------------------------
 Count
  * Resource A Load:
-   - 2 (a id:1)
-   - 1 (a id:2)
+   - 2 (a: id = 1)
+   - 1 (a: id = 2)
  * Resource B Load:
-   - 2 (b id:1)
+   - 2 (b: id = 1)
    - 1 (b, a: b.id = 1,other_condition IN (1,2,3,4))
 Duration (ms)
  * Resource A Load: 0

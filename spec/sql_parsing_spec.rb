@@ -36,13 +36,6 @@ describe TooActive::SqlParsing::AbstractQuery do
 
         it { is_expected.to be_a TooActive::SqlParsing::CountQuery }
       end
-
-      describe '#find?' do
-        let(:sql) { 'SELECT * FROM tablename WHERE id = 1 LIMIT 1' }
-        subject { query.find? }
-
-        it { is_expected.to eq 1 }
-      end
     end
 
     context 'when conditions' do

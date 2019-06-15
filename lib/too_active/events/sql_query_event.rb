@@ -23,14 +23,6 @@ module TooActive
       end
 
       def distinct_value
-        if query.is_a?(SqlParsing::SelectQuery) && query.limit == 1
-          id = binds.find { |bind| bind[0] == 'id' && bind[1].is_a?(Numeric) } if binds
-          if id
-            return "id:#{id}"
-          elsif query.orders
-            return "#{query.orders.join(', ')}"
-          end
-        end
         @query.description
       end
 
@@ -38,13 +30,13 @@ module TooActive
 
       def extract_data(data)
         @sql = data[:sql]
+        # data[:binds] is an array of tuples [column info, value]
+        @binds = data[:binds].map { |bind| [bind[0].name, bind[1]] }.to_h if data[:binds]
         @query = if data[:name] == 'SCHEMA'
           SqlParsing::SchemaQuery.new(@sql)
         else
-          SqlParsing::AbstractQuery.from_sql(@sql)
+          SqlParsing::AbstractQuery.from_sql(@sql, @binds)
         end
-        # data[:binds] is an array of tuples [column info, value]
-        @binds = data[:binds].map { |bind| [bind[0].name, bind[1]] }.to_h if data[:binds]
       end
 
       def required_fields

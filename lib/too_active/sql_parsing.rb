@@ -3,7 +3,7 @@ module TooActive
     VERB_FINDER = /^['"\s]*(?<verb>\w+)['"\s]*/i.freeze
 
     class AbstractQuery
-      attr_reader :sql, :tablename
+      attr_reader :sql, :tablename, :binds
 
       class << self
         attr_reader :verb, :extractions
@@ -28,7 +28,7 @@ module TooActive
           @extractions.each { |attr| attr_reader attr }
         end
 
-        def from_sql(sql)
+        def from_sql(sql, binds = [])
           sql = sql.gsub(';', '') if sql
           matched_verb = (VERB_FINDER.match(sql) || {})[:verb]
           verb = matched_verb.downcase.to_sym if matched_verb
@@ -36,12 +36,13 @@ module TooActive
             verb = :count
           end
           query = query_types[verb] || UnrecognizedQuery
-          query.new(sql)
+          query.new(sql, binds)
         end
       end
 
-      def initialize(sql)
+      def initialize(sql, binds = [])
         @sql = sql || ''
+        @binds = binds
         extract_parts!
       end
 
@@ -50,10 +51,18 @@ module TooActive
       end
 
       def description
-        verb.to_s.upcase
+        pretty_verb
       end
 
       private
+
+      def pretty_verb
+        verb.to_s.upcase
+      end
+
+      def pretty_binds
+        binds.map { |bind| "#{bind[0]}:#{bind[1]}" }.join(', ') if binds
+      end
 
       def extract_parts!
         query = sql
@@ -101,29 +110,24 @@ module TooActive
       type :select
       components :selects, :tablename, :joins, :conditions, :groups, :orders, :limit
 
-      def find?
-        if conditions && conditions.count == 1
-          match = /id["']?\s+=\s+(?<id>\d+)/.match(conditions.first)
-          match[:id].to_i if match
-        else
-          false
-        end
-      end
-
       def description
-        found_id = find?
-        if found_id
-          "#{tablename} id:#{found_id}"
-        elsif (conditions && conditions.count > 0) || (joins && joins.count > 0)
+        if (conditions && conditions.count > 0) || (joins && joins.count > 0) || binds
           tables = [tablename] + (joins || [])
-          added_conditions = ": #{conditions.join(',')}" if conditions
-          "#{tables.join(', ')}#{added_conditions}"
+          [tables.join(', '), pretty_conditions].compact.join(': ')
         else
           super
         end
       end
 
       private
+
+      def pretty_conditions
+        if binds
+          pretty_binds
+        elsif conditions
+          conditions.join(',')
+        end
+      end
 
       def extract_selects(query)
         select = query.split(/^select /i).last
