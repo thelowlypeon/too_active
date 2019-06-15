@@ -28,7 +28,7 @@ module TooActive
         end
 
         def from_sql(sql)
-          sql = sql&.gsub(';', '')
+          sql = sql.gsub(';', '') if sql
           matched_verb = (VERB_FINDER.match(sql) || {})[:verb]
           verb = matched_verb.downcase.to_sym if matched_verb
           if verb == :select && sql.to_s =~ /COUNT/
@@ -225,7 +225,8 @@ module TooActive
       components :verb
 
       def extract_verb(query)
-        @verb = query.split(/\s+/)[0]&.downcase&.to_sym
+        first_word = query.split(/\s+/)[0]
+        @verb = first_word.downcase.to_sym if first_word
       end
     end
   end
